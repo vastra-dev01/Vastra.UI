@@ -20,6 +20,8 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
+import HomeIcon from '@mui/icons-material/Home';
+
  
 
 const Menu = () => {
@@ -48,7 +50,11 @@ const Menu = () => {
 
         <div style={{ marginTop: '50px' }}>
 
+          <Button component={Link} to="/" startIcon={<HomeIcon />} fullWidth>
 
+            Home
+
+          </Button>
           <Button component={Link} to="/roles" startIcon={<PersonOutlineIcon />} fullWidth>
 
             Roles
