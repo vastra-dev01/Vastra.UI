@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 
-import axios from 'axios';
-
-import { redirect } from 'react-router-dom';
-
+import { Alert } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
 
 import TextField from '@mui/material/TextField';
 
 import Button from '@mui/material/Button';
 
- 
+import AuthService from '../../services/auth.service';
+
 
 function LoginPage() {
 
@@ -18,16 +17,13 @@ function LoginPage() {
 
   const [password, setPassword] = useState('');
 
-  const [token, setToken] = useState('');
+  const [errorMessage, setErrorMessage] = useState(undefined)
 
-  const [redirectToDashboard, setRedirectToDashboard] = useState(false);
-
- 
-
-  const handleLogin = async () => {
+  //const navigate = useNavigate();
+  const handleLogin = async (e) => {
 
     // Perform validation for phone number and password here
-
+    e.preventDefault();
     if (!phoneNumber || !password) {
 
       alert('Please fill in all fields.');
@@ -35,110 +31,79 @@ function LoginPage() {
       return;
 
     }
-
- 
-
     try {
-
-const response = await axios.post('/api/login', {
-
-        phoneNumber,
-
-        password,
-
-      });
-
- 
-
-      const jwtToken = response.data.token;
-
- 
-
-      // Store the token in cookies or local storage as needed
-
-      // You can use libraries like js-cookie or localStorage API
-
-      // Example with js-cookie:
-
-      // import Cookies from 'js-cookie';
-
-      // Cookies.set('jwtToken', jwtToken);
-
- 
-
-      setToken(jwtToken);
-
-      setRedirectToDashboard(true);
-
-    } catch (error) {
-
-      console.error('Login failed:', error);
-
-      alert('Login failed. Please try again.');
-
+      await AuthService.login(phoneNumber, password).then(
+        () => {
+          //navigate("/dashBoard");
+          window.location.reload();
+        },
+        (error) => {
+          setErrorMessage(error.message)
+          console.log(error)
+        }
+      )      
+    } catch (err) {
+      setErrorMessage(err.Message)
+      console.log(err);
     }
-
   };
 
  
-
-  if (redirectToDashboard) {
-
-    return <redirect to="/dashboard" />;
-
-  }
-
- 
-
   return (
+      <div style={{ textAlign: 'center', marginTop: '10%'}}>
 
-    <div style={{ textAlign: 'center', marginTop: '10%'}}>
+            <Typography variant="h3" gutterBottom>
 
-      <Typography variant="h3" gutterBottom>
+              Vastra Admin
 
-        Vastra Admin
+            </Typography>
 
-      </Typography>
+            <TextField
 
-      <TextField
+              label="Phone Number"
 
-        label="Phone Number"
+              variant="outlined"
 
-        variant="outlined"
+              value={phoneNumber}
 
-        value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
 
-        onChange={(e) => setPhoneNumber(e.target.value)}
+              style={{ marginBottom: '20px' }}
 
-        style={{ marginBottom: '20px' }}
+            />
+              <br/>
+            <TextField
 
-      />
-        <br/>
-      <TextField
+              type="password"
 
-        type="password"
+              label="Password"
 
-        label="Password"
+              variant="outlined"
 
-        variant="outlined"
+              value={password}
 
-        value={password}
+              onChange={(e) => setPassword(e.target.value)}
 
-        onChange={(e) => setPassword(e.target.value)}
+              style={{ marginBottom: '20px' }}
 
-        style={{ marginBottom: '20px' }}
+            />
+              <br/>
 
-      />
-        <br/>
+            <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={handleLogin}
+            style={{ marginBottom: '20px' }}
+            >
 
-      <Button variant="contained" color="primary" onClick={handleLogin}>
+              Login
 
-        Login
-
-      </Button>
-
-    </div>
-
+            </Button>
+            <br/>
+            {errorMessage && 
+            <Alert severity="error">{errorMessage}</Alert>
+            }
+            </div>
   );
 
 }
